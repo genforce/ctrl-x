@@ -8,4 +8,6 @@
 <sup>1</sup>UCLA&emsp;<sup>2</sup>NVIDIA <br>
 <sup>*</sup>Equal contribution <br>
 
+![Ctrl-X teaser figure](docs/assets/teaser_github.jpg)
+
 Code release is coming soon!
