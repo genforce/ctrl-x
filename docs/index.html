@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+
+
+<!-- === Header Starts === -->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <title>Ctrl-X</title>
+
+  <link href="./assets/bootstrap.min.css" rel="stylesheet">
+  <link href="./assets/font.css" rel="stylesheet" type="text/css">
+  <link href="./assets/style.css" rel="stylesheet" type="text/css">
+</head>
+<!-- === Header Ends === -->
+
+
+<body>
+
+
+<!-- === Home Section Starts === -->
+<div class="section">
+  <!-- === Title Starts === -->
+  <div class="header">
+    <div class="logo">
+      <a href="https://genforce.github.io/" target="_blank"><img src="./assets/genforce.png"></a>
+    </div>
+    <div class="title", style="padding-top: 25pt;">  <!-- Set padding as 10 if title is with two lines. -->
+      Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance
+    </div>
+  </div>
+  <!-- === Title Ends === -->
+  <div class="author">
+    <a href="https://kuanhenglin.github.io" target="_blank">Kuan Heng Lin</a><sup>1</sup>*&nbsp;&nbsp;&nbsp;
+    <a href="https://sichengmo.github.io/" target="_blank">Sicheng Mo</a><sup>1</sup>*&nbsp;&nbsp;&nbsp;
+    <a href="https://bklingher.github.io" target="_blank">Ben Klingher</a><sup>1</sup>&nbsp;&nbsp;&nbsp;
+    <a href="https://pages.cs.wisc.edu/~fmu/" target="_blank">Fangzhou Mu</a><sup>2</sup>&nbsp;&nbsp;&nbsp;
+    <a href="https://boleizhou.github.io/" target="_blank">Bolei Zhou</a><sup>1</sup>
+  </div>
+  <div class="institution">
+    <sup>1</sup>UCLA&nbsp;&nbsp;&nbsp;
+    <sup>2</sup>NVIDIA
+  </div>
+  <div class="note">
+    *Equal contribution
+  </div>
+  <div class="link">
+    <a href="#" target="_blank">[Paper]</a>&nbsp;&nbsp;&nbsp;
+    <a href="#" target="_blank">[Code (coming soon!)]</a>
+  </div>
+  <div class="teaser">
+    <img src="assets/teaser.jpg" width="85%">
+  </div>
+</div>
+<!-- === Home Section Ends === -->
+
+
+<!-- === Overview Section Starts === -->
+<div class="section">
+  <div class="title">Overview</div>
+  <div class="body"> 
+    We present <b>Ctrl-X</b>, a simple <i>training-free</i> and <i>guidance-free</i> framework for text-to-image (T2I) generation with structure and appearance control. Given user-provided structure and appearance images, Ctrl-X designs feedforward structure control to enable structure alignment with the structure image and semantic-aware appearance transfer to facilitate the appearance transfer from the appearance image. Ctrl-X supports novel structure control with arbitrary condition images of any modality, is significantly faster than prior training-free appearance transfer methods, and provides instant plug-and-play to any T2I and text-to-video (T2V) diffusion model.
+    <!-- Recent controllable generation approaches such as FreeControl and Diffusion
+    Self-guidance bring fine-grained spatial and appearance control to text-to-
+    image (T2I) diffusion models without training auxiliary modules. However, these
+    methods optimize the latent embedding for each type of score function with longer
+    diffusion steps, making the generation process time-consuming and limiting their
+    flexibility and use. This work presents Ctrl-X, a simple framework for T2I diffusion
+    controlling structure and appearance without additional training or guidance. Ctrl-X
+    designs feed-forward structure control to enable the structure alignment with a
+    structure image and semantic-aware appearance transfer to facilitate the appearance
+    transfer from a user-input image. Extensive qualitative and quantitative experiments
+    illustrate the superior performance of Ctrl-X on various condition inputs and model
+    checkpoints. In particular, Ctrl-X supports novel structure and appearance control
+    with arbitrary condition images of any modality, exhibits superior image quality and
+    appearance transfer compared to existing works, and provides instant plug-and-play
+    to any T2I and text-to-video (T2V) diffusion model. -->
+
+    <table width="100%" style="margin: 20pt 0; text-align: center;">
+      <tr>
+        <td><img src="assets/pipeline.jpg" width="85%"></td>
+      </tr>
+    </table>
+
+    <b>How does it work?</b>&nbsp;&nbsp;&nbsp;Given clean structure and appearance latents, we first obtain noised structure and appearance latents via the diffusion forward process, then extracting their U-Net features from a pretrained T2I diffusion model. When denoising the output latent, we inject convolution and self-attention features from the structure latent and leverage self-attention correspondence to transfer spatially-aware appearance statistics from the appearance latent to achieve structure and appearance control. We name our method "Ctrl-X" because we reformulate the controllable generation problem by 'cutting' (and 'pasting') structure preservation and semantic-aware stylization together.
+  </div>
+</div>
+<!-- === Overview Section Ends === -->
+
+
+<!-- === Result Section Starts === -->
+<div class="section">
+  <div class="title">Results: Structure and appearance control</div>
+  <div class="body">
+    Results of training-free and guidance-free T2I diffusion with structure and appearance control, where Ctrl-X supports a diverse variety of structure images, including natural images, ControlNet-supported conditions (e.g., canny maps, normal maps), and in-the-wild conditions (e.g., wireframes, 3D meshes). The base model here is <a href="https://arxiv.org/abs/2307.01952" target="_blank">Stable Diffusion XL v1.0</a>.
+
+    <!-- Adjust the number of rows and columns (EVERY project differs). -->
+    <table width="100%" style="margin: 20pt 0; text-align: center;">
+      <tr>
+        <td><img src="assets/results_struct+app.jpg" width="100%"></td>
+      </tr>
+    </table>
+    <table width="100%" style="margin: 20pt 0; text-align: center;">
+      <tr>
+        <td><img src="assets/results_struct+app_2.jpg" width="85%"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="title">Results: Prompt-driven conditional generation</div>
+  <div class="body">
+    Ctrl-X also supports prompt-driven conditional generation, where it generates an output image complying with the given text prompt while aligning with the structure of the structure image. Ctrl-X continues to support any structure image/condition type here as well. The base model here is <a href="https://arxiv.org/abs/2307.01952" target="_blank">Stable Diffusion XL v1.0</a>.
+
+    <!-- Adjust the number of rows and columns (EVERY project differs). -->
+    <table width="100%" style="margin: 20pt 0; text-align: center;">
+      <tr>
+        <td><img src="assets/results_struct+prompt.jpg" width="100%"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="title">Results: Extension to video generation</div>
+  <div class="body">
+    We can directly apply Ctrl-X to text-to-video (T2V) models. We show results of <a href="https://animatediff.github.io/" target="_blank">AnimateDiff v1.5.3</a> (with base model <a href="https://huggingface.co/SG161222/Realistic_Vision_V5.1_noVAE" target="_blank">Realistic Vision v5.1</a>) here.
+
+    <!-- Demo video here. Adjust the frame size based on the demo (EVERY project differs). -->
+    <div style="position: relative; padding-top: 50%; margin: 20pt 0; text-align: center;">
+      <iframe src="assets/results_animatediff.mp4" frameborder=0
+              style="position: absolute; top: 2.5%; left: 0%; width: 100%; height: 100%;"
+              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- === Result Section Ends === -->
+
+
+<!-- === Reference Section Starts === -->
+<div class="section">
+  <div class="bibtex">BibTeX</div>
+<pre>
+@article{lin2024ctrlx,
+  title   = {Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance},
+  author  = {Lin, Kuan Heng and Mo, Sicheng and Klingher, Ben and Mu, Fangzhou and Zhou, Bolei},
+  journal = {arXiv preprint arXiv:[numbers]},
+  year    = {2024}
+}
+</pre>
+
+  <!-- BZ: we should give other related work enough credits, -->
+  <!--     so please include some most relevant work and leave some comment to summarize work and the difference. -->
+  <div class="ref">Related Work</div>
+  <div class="citation">
+    <div class="image"><img src="assets/freecontrol.jpg"></div>
+    <div class="comment">
+      <a href="https://genforce.github.io/freecontrol/" target="_blank">
+        Sicheng Mo, Fangzhou Mu, Kuan Heng Lin, Yanli Liu, Bochen Guan, Yin Li, Bolei Zhou.
+        FreeControl: Training-Free Spatial Control of Any Text-to-Image Diffusion Model with Any Condition.
+        CVPR 2024.</a><br>
+      <b>Comment:</b>
+      Training-free conditional generation by guidance in diffusion U-Net subspaces for structure control and appearance regularization.
+    </div>
+  </div>
+  <div class="citation">
+    <div class="image"><img src="assets/cross_image_attention.jpg"></div>
+    <div class="comment">
+      <a href="https://garibida.github.io/cross-image-attention/" target="_blank">
+        Yuval Alaluf, Daniel Garibi, Or Patashnik, Hadar Averbuch-Elor, Daniel Cohen-Or.
+        Cross-Image Attention for Zero-Shot Appearance Transfer.
+        SIGGRAPH 2024.</a><br>
+      <b>Comment:</b>
+      Guidance-free appearance transfer to natural images with self-attention key + value swaps via cross-image correspondence.
+    </div>
+  </div>
+</div>
+<!-- === Reference Section Ends === -->
+
+
+</body>
+</html>
