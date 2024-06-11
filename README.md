@@ -11,3 +11,14 @@
 ![Ctrl-X teaser figure](docs/assets/teaser_github.jpg)
 
 Code release is coming soon!
+
+## Reference 
+
+```bibtex
+@article{lin2024ctrlx,
+  title   = {Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance},
+  author  = {Lin, {Kuan Heng} and Mo, Sicheng and Klingher, Ben and Mu, Fangzhou and Zhou, Bolei},
+  journal = {arXiv preprint arXiv:[numbers]},
+  year    = {2024}
+}
+```
