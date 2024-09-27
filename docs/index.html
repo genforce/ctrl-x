@@ -44,9 +44,12 @@
   <div class="note">
     *Equal contribution
   </div>
+  <div class="title" style="font-size: 18pt;margin: 15pt 0 15pt 0">
+    NeurIPS 2024
+  </div>
   <div class="link">
-    <a href="https://arxiv.org/abs/2406.07540" target="_blank">[Paper]</a>&nbsp;&nbsp;&nbsp;
-    <a href="https://github.com/genforce/ctrl-x" target="_blank">[Code (coming soon!)]</a>
+    [<a href="https://arxiv.org/abs/2406.07540" target="_blank">Paper</a>]&nbsp;&nbsp;&nbsp;
+    [<a href="https://github.com/genforce/ctrl-x" target="_blank">Code</a>]
   </div>
   <div class="teaser">
     <img src="assets/ctrl-x.jpg" width="85%">
@@ -93,6 +96,20 @@
 </div>
 
 <div class="section">
+  <div class="title">Results: Multi-subject structure and appearance control</div>
+  <div class="body">
+    Ctrl-X is capable of multi-subject generation with semantic correspondence between appearance and structure images across both subjects and backgrounds. In comparison, <a href="https://arxiv.org/abs/2302.05543" target="_blank">ControlNet</a> + <a href="https://arxiv.org/abs/2308.06721" target="_blank">IP-Adapter</a> often fails at transferring all subject and background appearances.
+
+    <!-- Adjust the number of rows and columns (EVERY project differs). -->
+    <table width="100%" style="margin: 20pt 0; text-align: center;">
+      <tr>
+        <td><img src="assets/results_multi_subject.jpg" width="90%"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="section">
   <div class="title">Results: Prompt-driven conditional generation</div>
   <div class="body">
     Ctrl-X also supports prompt-driven conditional generation, where it generates an output image complying with the given text prompt while aligning with the structure of the structure image. Ctrl-X continues to support any structure image/condition type here as well. The base model here is <a href="https://arxiv.org/abs/2307.01952" target="_blank">Stable Diffusion XL v1.0</a>.
@@ -128,13 +145,11 @@
 <div class="section">
   <div class="bibtex">BibTeX</div>
 <pre>
-@misc{lin2024ctrlx,
-    title = {Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance}, 
+@inproceedings{lin2024ctrlx,
     author = {Lin, {Kuan Heng} and Mo, Sicheng and Klingher, Ben and Mu, Fangzhou and Zhou, Bolei},
-    year = {2024},
-    eprint = {2406.07540},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
+    booktitle = {Advances in Neural Information Processing Systems},
+    title = {Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance},
+    year = {2024}
 }
 </pre>
 

@@ -1,4 +1,4 @@
-# Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance
+# Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance (NeurIPS 2024)
 
 <a href="https://arxiv.org/abs/2406.07540"><img src="https://img.shields.io/badge/arXiv-Paper-red"></a> 
 <a href="https://genforce.github.io/ctrl-x"><img src="https://img.shields.io/badge/Project-Page-yellow"></a>
@@ -10,17 +10,37 @@
 
 ![Ctrl-X teaser figure](docs/assets/teaser_github.jpg)
 
-Code release is coming soon!
+## Getting started
 
-## Reference 
+### Environment setup
+
+Our code is built on top of [`diffusers v0.28.0`](https://github.com/huggingface/diffusers). To set up the environment, please run the following.
+```
+conda env create -f environment.yaml
+conda activate ctrlx
+```
+
+### Gradio demo
+
+We provide a user interface for testing our method. Running the following command starts the demo.
+```
+python3 app_ctrlx.py
+```
+Have fun playing around! :D
+
+## Contact
+
+For any questions, thoughts, discussions, and any other things you want to reach out for, please contact [Kuan Heng (Jordan) Lin](https://kuanhenglin.github.io) (kuanhenglin@ucla.edu).
+
+## Reference
+
+If you use our code in your research, please cite the following work.
 
 ```bibtex
-@misc{lin2024ctrlx,
-    title = {Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance}, 
+@inproceedings{lin2024ctrlx,
     author = {Lin, {Kuan Heng} and Mo, Sicheng and Klingher, Ben and Mu, Fangzhou and Zhou, Bolei},
-    year = {2024},
-    eprint = {2406.07540},
-    archivePrefix = {arXiv},
-    primaryClass = {cs.CV}
+    booktitle = {Advances in Neural Information Processing Systems},
+    title = {Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance},
+    year = {2024}
 }
 ```
