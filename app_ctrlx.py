@@ -157,9 +157,7 @@ def inference(
     structure_schedule, appearance_schedule, use_advanced_config,
     control_config,
 ):
-    global pipe, refiner
-    
-    torch.manual_seed(seed)
+    seed_everything(seed)
     
     pipe.scheduler.set_timesteps(num_inference_steps, device=device)
     timesteps = pipe.scheduler.timesteps
@@ -310,7 +308,7 @@ with gr.Blocks(theme=gr.themes.Default(), css=css, title="Ctrl-X (SDXL v1.0)") a
                 "a 3D mesh of a cat",
                 "",
                 "a photo of a tiger standing on snow",
-                0.6, 0.6,
+                0.5, 0.6,
             ],
             [
                 "assets/images/dog__sketch.jpg",
@@ -358,7 +356,7 @@ with gr.Blocks(theme=gr.themes.Default(), css=css, title="Ctrl-X (SDXL v1.0)") a
                 "a segmentation map of a bear and an avocado",
                 "",
                 "a realistic photo of a bear and an avocado in a forest",
-                0.6, 0.6,
+                0.5, 0.6,
             ],
             [
                 "assets/images/cat__point_cloud.jpg",
@@ -382,7 +380,7 @@ with gr.Blocks(theme=gr.themes.Default(), css=css, title="Ctrl-X (SDXL v1.0)") a
                 "a 3D model of a person holding a sword and shield",
                 "",
                 "a photo of a medieval soldier standing on a barren field, raining",
-                0.6, 0.6,
+                0.5, 0.6,
             ],
             [
                 "assets/images/person__mesh.jpg",

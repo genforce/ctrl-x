@@ -13,9 +13,6 @@ from ctrl_x.utils import *
 from ctrl_x.utils.sdxl import *
 
 
-JPEG_QUALITY = 100
-
-
 @torch.no_grad()
 def inference(
     pipe, refiner, device,
@@ -27,7 +24,7 @@ def inference(
     width, height,
     structure_schedule, appearance_schedule,
 ):  
-    torch.manual_seed(seed)
+    seed_everything(seed)
     
     pipe.scheduler.set_timesteps(num_inference_steps, device=device)
     timesteps = pipe.scheduler.timesteps

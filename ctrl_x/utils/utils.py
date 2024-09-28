@@ -1,7 +1,20 @@
+import random
+from os import environ
+
+import numpy as np
 import torch
 
 
-JPEG_QUALITY = 95
+JPEG_QUALITY = 100
+
+
+def seed_everything(seed):
+    random.seed(seed)
+    environ["PYTHONHASHSEED"] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def exists(x):
