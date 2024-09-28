@@ -35,14 +35,8 @@ def normalize(x, dim):
 def appearance_mean_std(q_c_normed, k_s_normed, v_s):  # c: content, s: style
     q_c = q_c_normed  # q_c and k_s must be projected from normalized features
     k_s = k_s_normed
-    scale_factor = 1 / math.sqrt(q_c.shape[-1])
-    
-    # My notation below is very jank: D = (H W) is number of tokens, and C is token dimension
-    # Horrible notation coming from how self-attention dimensions work in Stable Diffusion
-    A = q_c @ k_s.mT  # (B H D C/H) (B H C/H D)^T -> (B H D D)
-    A = F.softmax(A * scale_factor, dim=-1)  # Softmax on last D in (B H D D)
-    mean = A @ v_s  # (B H D D) (B H D C/H) -> (B H D C/H)
-    std = (A @ v_s.square() - mean.square()).relu().sqrt()
+    mean = F.scaled_dot_product_attention(q_c, k_s, v_s)  # Use scaled_dot_product_attention for efficiency
+    std = (F.scaled_dot_product_attention(q_c, k_s, v_s.square()) - mean.square()).relu().sqrt()
     
     return mean, std
     

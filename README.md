@@ -20,17 +20,45 @@ conda env create -f environment.yaml
 conda activate ctrlx
 ```
 
-### Gradio demo
+### Running Ctrl-X
+
+#### Gradio demo
 
 We provide a user interface for testing our method. Running the following command starts the demo.
+```bash
+python app_ctrlx.py
 ```
-python3 app_ctrlx.py
+
+#### Script
+
+We also provide a script for running our method. This is equivalent to the Gradio demo.
+```bash
+python run_ctrlx.py \
+    --structure_image assets/images/horse__point_cloud.jpg \
+    --appearance_image assets/images/horse.jpg \
+    --prompt "a photo of a horse standing on grass" \
+    --structure_prompt "a 3D point cloud of a horse"
 ```
+If `appearance_image` is not provided, then Ctrl-X does *structure-only* control. If `structure_image` is not provided, then Ctrl-X does *appearance-only* control.
+
+#### Optional arguments
+
+There are three optional arguments for both `app_ctrlx.py` and `run_ctrlx.py`:
+- `cpu_offload` (flag): If enabled, offloads each component of both the base model and refiner to CPU when not in use, reducing memory usage while slightly increasing runtime (runtime increases by ~30%).
+    - To use `cpu_offload`, [`accelerate`](https://github.com/huggingface/accelerate) must be installed. This must be done manually with `pip install accelerate` as `environment.yaml` does *not* have `accelerate` listed.
+- `disable_refiner` (flag): If enabled, disables the refiner (and does not load it), reducing memory usage.
+- `model` (`str`): When provided a `safetensor` checkpoint path, loads the checkpoint for the base model.
+
+Approximate GPU VRAM usage for the Gradio demo and script is as follows.
+| No flags | `cpu_offload` | `disable_refiner` | `cpu_offload` + `disable_refiner` |
+| -------- | ------------- | ----------------- | --------------------------------- |
+| 19GiB    | 13GiB         | 15GiB             | 8GiB                              |
+
 Have fun playing around! :D
 
 ## Contact
 
-For any questions, thoughts, discussions, and any other things you want to reach out for, please contact [Kuan Heng (Jordan) Lin](https://kuanhenglin.github.io) (kuanhenglin@ucla.edu).
+For any questions, thoughts, discussions, and any other things you want to reach out for, please contact [Jordan Lin](https://kuanhenglin.github.io) (kuanhenglin@ucla.edu).
 
 ## Reference
 

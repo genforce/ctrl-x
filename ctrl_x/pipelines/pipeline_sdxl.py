@@ -629,10 +629,11 @@ class CtrlXStableDiffusionXLPipeline(StableDiffusionXLPipeline):  # diffusers==0
         if not output_type == "latent":
             # Make sure the VAE is in float32 mode, as it overflows in float16
             if self.vae.config.force_upcast:
-                self.vae.to(torch.float32)  # self.upcast_vae() is buggy
-                latents = latents.to(torch.float32)
-                structure_latents = structure_latents.to(torch.float32)
-                appearance_latents = appearance_latents.to(torch.float32)
+                self.upcast_vae()
+                vae_dtype = next(iter(self.vae.post_quant_conv.parameters())).dtype
+                latents = latents.to(vae_dtype)
+                structure_latents = structure_latents.to(vae_dtype)
+                appearance_latents = appearance_latents.to(vae_dtype)
 
             image = self.vae.decode(latents / self.vae.config.scaling_factor, return_dict=False)[0]
             image = self.image_processor.postprocess(image, output_type=output_type)

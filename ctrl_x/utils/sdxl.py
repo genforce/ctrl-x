@@ -9,6 +9,34 @@ from .feature import *
 from .utils import *
 
 
+def get_control_config(structure_schedule, appearance_schedule):
+    s = structure_schedule
+    a = appearance_schedule
+    
+    control_config =\
+f"""control_schedule:
+    #       structure_conv   structure_attn   appearance_attn  conv/attn
+    encoder:                                                # (num layers)
+        0: [[             ], [             ], [             ]]  # 2/0
+        1: [[             ], [             ], [{a}, {a}     ]]  # 2/2
+        2: [[             ], [             ], [{a}, {a}     ]]  # 2/2
+    middle: [[            ], [             ], [             ]]  # 2/1
+    decoder:
+        0: [[{s}          ], [{s}, {s}, {s}], [0.0, {a}, {a}]]  # 3/3
+        1: [[             ], [             ], [{a}, {a}     ]]  # 3/3
+        2: [[             ], [             ], [             ]]  # 3/0
+
+control_target:
+    - [output_tensor]  # structure_conv   choices: {{hidden_states, output_tensor}}
+    - [query, key]     # structure_attn   choices: {{query, key, value}}
+    - [before]         # appearance_attn  choices: {{before, value, after}}
+
+self_recurrence_schedule:
+    - [0.1, 0.5, 2]  # format: [start, end, num_recurrence]"""
+    
+    return control_config
+
+
 def convolution_forward(  # From <class 'diffusers.models.resnet.ResnetBlock2D'>, forward (diffusers==0.28.0)
     self,
     input_tensor: torch.Tensor,

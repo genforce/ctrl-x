@@ -11,10 +11,13 @@ from ctrl_x.utils.sdxl import *
 
 
 parser = ArgumentParser()
-parser.add_argument("-m", "--model", type=str, default=None)  # Optionally, load model checkpoint from single file
+parser.add_argument(
+    "-c", "--cpu_offload", action="store_true",
+    help="Model CPU offload, lowers memory usage with slight runtime increase. `accelerate` must be installed.",
+)
+parser.add_argument("-r", "--disable_refiner", action="store_true")
+parser.add_argument("-m", "--model", type=str, default=None, help="Optionally, load (single-file) model safetensors.")
 args = parser.parse_args()
-
-torch.backends.cudnn.enabled = False  # Sometimes necessary to suppress CUDNN_STATUS_NOT_SUPPORTED
 
 torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
@@ -23,50 +26,37 @@ refiner_id_or_path = "stabilityai/stable-diffusion-xl-refiner-1.0"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 variant = "fp16" if device == "cuda" else "fp32"
 
-scheduler = DDIMScheduler.from_config(model_id_or_path, subfolder="scheduler")  # TODO: Support other schedulers
+scheduler = DDIMScheduler.from_config(model_id_or_path, subfolder="scheduler")  # TODO: Support schedulers beyond DDIM
+
 if args.model is None:
     pipe = CtrlXStableDiffusionXLPipeline.from_pretrained(
-        model_id_or_path, scheduler=scheduler, torch_dtype=torch_dtype, variant=variant, use_safetensors=True
+        model_id_or_path, scheduler=scheduler, torch_dtype=torch_dtype, variant=variant, use_safetensors=True,
     )
 else:
     print(f"Using weights {args.model} for SDXL base model.")
     pipe = CtrlXStableDiffusionXLPipeline.from_single_file(args.model, scheduler=scheduler, torch_dtype=torch_dtype)
-refiner = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-    refiner_id_or_path, scheduler=scheduler, text_encoder_2=pipe.text_encoder_2, vae=pipe.vae,
-    torch_dtype=torch_dtype, variant=variant, use_safetensors=True,
-)
 
-if torch.cuda.is_available():
-    pipe = pipe.to("cuda")
-    refiner = refiner.to("cuda")
-    
+refiner = None
+if not args.disable_refiner:
+    refiner = StableDiffusionXLImg2ImgPipeline.from_pretrained(
+        refiner_id_or_path, scheduler=scheduler, text_encoder_2=pipe.text_encoder_2, vae=pipe.vae,
+        torch_dtype=torch_dtype, variant=variant, use_safetensors=True,
+    )
 
-def get_control_config(structure_schedule, appearance_schedule):
-    s = structure_schedule
-    a = appearance_schedule
-    
-    control_config =\
-f"""control_schedule:
-    #       structure_conv   structure_attn   appearance_attn  conv/attn
-    encoder:                                                # (num layers)
-        0: [[             ], [             ], [             ]]  # 2/0
-        1: [[             ], [             ], [{a}, {a}     ]]  # 2/2
-        2: [[             ], [             ], [{a}, {a}     ]]  # 2/2
-    middle: [[            ], [             ], [             ]]  # 2/1
-    decoder:
-        0: [[{s}          ], [{s}, {s}, {s}], [0.0, {a}, {a}]]  # 3/3
-        1: [[             ], [             ], [{a}, {a}     ]]  # 3/3
-        2: [[             ], [             ], [             ]]  # 3/0
+if args.cpu_offload:
+    try:
+        import accelerate  # Checking if accelerate is installed for CPU offloading
+    except:
+        raise ModuleNotFoundError("`accelerate` must be installed for CPU offloading.")
+    pipe.enable_model_cpu_offload()
+    if refiner is not None:
+        refiner.enable_model_cpu_offload()
+else:
+    pipe = pipe.to(device)
+    if refiner is not None:
+        refiner = refiner.to(device)
 
-control_target:
-    - [output_tensor]  # structure_conv   choices: {{hidden_states, output_tensor}}
-    - [query, key]     # structure_attn   choices: {{query, key, value}}
-    - [before]         # appearance_attn  choices: {{before, value, after}}
-
-self_recurrence_schedule:
-    - [0.1, 0.5, 2]  # format: [start, end, num_recurrence]"""
-    
-    return control_config
+print(f"Base model + refiner loaded. Running on device: {device}.")
     
 
 css = """
@@ -156,6 +146,7 @@ title = """
 """
 
 
+@torch.no_grad()
 def inference(
     structure_image, appearance_image,
     prompt, structure_prompt, appearance_prompt,
@@ -166,15 +157,16 @@ def inference(
     structure_schedule, appearance_schedule, use_advanced_config,
     control_config,
 ):
+    global pipe, refiner
+    
     torch.manual_seed(seed)
     
     pipe.scheduler.set_timesteps(num_inference_steps, device=device)
     timesteps = pipe.scheduler.timesteps
     
-    print(f"\nUsing the following control config (use_advanced_config={use_advanced_config}):")
     if not use_advanced_config:
         control_config = get_control_config(structure_schedule, appearance_schedule)
-    print(control_config, end="\n\n")
+    print(f"\nUsing the following control config (use_advanced_config={use_advanced_config}):\n{control_config}\n")
     
     config = yaml.safe_load(control_config)
     register_control(
@@ -190,8 +182,6 @@ def inference(
     self_recurrence_schedule = get_self_recurrence_schedule(config["self_recurrence_schedule"], num_inference_steps)
 
     pipe.set_progress_bar_config(desc="Ctrl-X inference")
-    refiner.set_progress_bar_config(desc="Refiner")
-    
     result, structure, appearance = pipe(
         prompt = prompt,
         structure_prompt = structure_prompt,
@@ -212,20 +202,26 @@ def inference(
         control_schedule = config["control_schedule"],
         self_recurrence_schedule = self_recurrence_schedule,
     )
+
+    if refiner is not None:
+        refiner.set_progress_bar_config(desc="Refiner")
+        result_refiner = refiner(
+            image = pipe.refiner_args["latents"],
+            prompt = pipe.refiner_args["prompt"],
+            negative_prompt = pipe.refiner_args["negative_prompt"],
+            height = height,
+            width = width,
+            num_inference_steps = num_inference_steps,
+            guidance_scale = guidance_scale,
+            guidance_rescale = 0.7,
+            num_images_per_prompt = 1,
+            eta = eta,
+            output_type = "pil",
+        ).images
     
-    result_refiner = refiner(
-        image = pipe.refiner_args["latents"],
-        prompt = pipe.refiner_args["prompt"],
-        negative_prompt = pipe.refiner_args["negative_prompt"],
-        height = height,
-        width = width,
-        num_inference_steps = num_inference_steps,
-        guidance_scale = guidance_scale,
-        guidance_rescale = 0.7,
-        num_images_per_prompt = 1,
-        eta = eta,
-        output_type = "pil",
-    ).images
+    else:
+        result_refiner = [None]
+
     del pipe.refiner_args
     
     return [result[0], result_refiner[0], structure[0], appearance[0]]
