@@ -91,50 +91,6 @@ def inference(
     return result[0], result_refiner[0], structure[0], appearance[0]
 
 
-def ctrlx_sdxl(pipe, structure_image, appearance_image, prompt, structure_prompt, device):
-    torch.manual_seed(90095)
-    
-    pipe.scheduler.set_timesteps(50, device=device)
-    timesteps = pipe.scheduler.timesteps
-    
-    control_config = get_control_config(0.6, 0.6)
-    config = yaml.safe_load(control_config)
-    register_control(  # TODO: Maybe just pass the config file in :P
-        model = pipe,
-        timesteps = timesteps,
-        control_schedule = config["control_schedule"],
-        control_target = config["control_target"],
-    )
-    
-    pipe.safety_checker = None
-    pipe.requires_safety_checker = False
-    
-    self_recurrence_schedule = get_self_recurrence_schedule(config["self_recurrence_schedule"], 50)
-
-    result, structure, appearance = pipe(
-        prompt = prompt,
-        structure_prompt = structure_prompt,
-        appearance_prompt = "",
-        structure_image = structure_image,
-        appearance_image = appearance_image,
-        num_inference_steps = 50,
-        negative_prompt = "ugly, blurry, dark, low res, unrealistic",
-        positive_prompt = "high quality",
-        height = 1024,
-        width = 1024,
-        guidance_scale = 5.0,
-        structure_guidance_scale = 5.0,
-        appearance_guidance_scale = 5.0,
-        eta = 1.0,
-        output_type = "pil",
-        return_dict = False,
-        control_schedule = config["control_schedule"],
-        self_recurrence_schedule = self_recurrence_schedule,
-        decode_structure = True,
-        decode_appearance = True,
-    )
-
-
 @torch.no_grad()
 def main(args):
     
