@@ -44,17 +44,28 @@ If `appearance_image` is not provided, then Ctrl-X does *structure-only* control
 #### Optional arguments
 
 There are three optional arguments for both `app_ctrlx.py` and `run_ctrlx.py`:
-- `cpu_offload` (flag): If enabled, offloads each component of both the base model and refiner to CPU when not in use, reducing memory usage while slightly increasing runtime (runtime increases by ~30%).
-    - To use `cpu_offload`, [`accelerate`](https://github.com/huggingface/accelerate) must be installed. This must be done manually with `pip install accelerate` as `environment.yaml` does *not* have `accelerate` listed.
+- `model_offload` (flag): If enabled, offloads each component of both the base model and refiner to the CPU when not in use, reducing memory usage while slightly increasing inference time.
+    - To use `model_offload`, [`accelerate`](https://github.com/huggingface/accelerate) must be installed. This must be done manually with `pip install accelerate` as `environment.yaml` does *not* have `accelerate` listed.
+- `sequential_offload` (flag): If enabled, offloads each layer of both the base model and refiner to the CPU when not in use, *significantly* reducing memory usage while *massively* increasing inference time.
+    - Similarly, `accelerate` must be installed to use `sequential_offload`.
+    - If both `model_offload` and `sequential_offload` are enabled, then our code defaults to `sequential_offload`.
 - `disable_refiner` (flag): If enabled, disables the refiner (and does not load it), reducing memory usage.
 - `model` (`str`): When provided a `safetensor` checkpoint path, loads the checkpoint for the base model.
 
-Approximate GPU VRAM usage for the Gradio demo and script is as follows.
-| No flags | `cpu_offload` | `disable_refiner` | `cpu_offload` + `disable_refiner` |
-| -------- | ------------- | ----------------- | --------------------------------- |
-| 19GiB    | 13GiB         | 15GiB             | 8GiB                              |
+Approximate GPU VRAM usage for the Gradio demo and script (structure *and* appearance control) on a single NVIDIA RTX A6000 is as follows.
 
-Have fun playing around! :D
+| Flags                                    | Inference time (s) | GPU VRAM usage (GiB) |
+| ---------------------------------------- | ------------------ | -------------------- |
+| None                                     | 28.8               | 18.8                 |
+| `model_offload`                          | 38.3               | 12.6                 |
+| `sequential_offload`                     | 169.3              | 3.8                  |
+| `disable_refiner`                        | 25.5               | 14.5                 |
+| `model_offload` + `disable_refiner`      | 31.7               | 7.4                  |
+| `sequential_offload` + `disable_refiner` | 151.4              | 3.8                  |
+
+Here, VRAM usage is obtained via `torch.cuda.max_memory_reserved()`, which is the closest option in PyTorch to `nvidia-smi` numbers but is probably still an underestimation. You can obtain these numbers on your own hardware by adding the `benchmark` flag for `run_ctrlx.py`.
+
+Have fun playing around with Ctrl-X! :D
 
 ## Contact
 

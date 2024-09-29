@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from os import makedirs, path
-from time import sleep
+from time import time
 
 from diffusers import DDIMScheduler, StableDiffusionXLImg2ImgPipeline
 from diffusers.utils import load_image
@@ -126,20 +126,38 @@ def main(args):
             torch_dtype=torch_dtype, variant=variant, use_safetensors=True,
         )
     
-    if args.cpu_offload:
+    if args.model_offload or args.sequential_offload:
         try:
-            import accelerate  # Checking if accelerate is installed for CPU offloading
+            import accelerate  # Checking if accelerate is installed for Model/CPU offloading
         except:
-            raise ModuleNotFoundError("`accelerate` must be installed for CPU offloading.")
-        pipe.enable_model_cpu_offload()
-        if refiner is not None:
-            refiner.enable_model_cpu_offload()
+            raise ModuleNotFoundError("`accelerate` must be installed for Model/CPU offloading.")
+        
+        if args.sequential_offload:
+            pipe.enable_sequential_cpu_offload()
+            if refiner is not None:
+                refiner.enable_sequential_cpu_offload()
+        elif args.model_offload:
+            pipe.enable_model_cpu_offload()
+            if refiner is not None:
+                refiner.enable_model_cpu_offload()
+    
     else:
         pipe = pipe.to(device)
         if refiner is not None:
             refiner = refiner.to(device)
 
-    print(f"Base model + refiner loaded. Running on device: {device}.")
+    model_load_print = "Base model "
+    if not args.disable_refiner:
+        model_load_print += "+ refiner "
+    if args.sequential_offload:
+        model_load_print += "loaded with sequential CPU offloading."
+    elif args.model_offload:
+        model_load_print += "loaded with model CPU offloading."
+    else:
+        model_load_print += "loaded."
+    print(f"{model_load_print} Running on device: {device}.")
+    
+    t = time()
     
     result, result_refiner, structure, appearance = inference(
         pipe = pipe,
@@ -171,6 +189,12 @@ def main(args):
     result.save(path.join(args.output_folder, f"{prefix}__result.jpg"), quality=JPEG_QUALITY)
     if result_refiner is not None:
         result_refiner.save(path.join(args.output_folder, f"{prefix}__result_refiner.jpg"), quality=JPEG_QUALITY)
+    
+    if args.benchmark:
+        inference_time = time() - t
+        peak_memory_usage = torch.cuda.max_memory_reserved()
+        print(f"Inference time: {inference_time:.2f}s")
+        print(f"Peak memory usage: {peak_memory_usage / pow(1024, 3):.2f}GiB")
     
     print("Done.")
     
@@ -205,11 +229,19 @@ if __name__ == "__main__":
     parser.add_argument("--output_folder", "-o", type=str, default="./results")
     
     parser.add_argument(
-        "-c", "--cpu_offload", action="store_true",
+        "-mo", "--model_offload", action="store_true",
         help="Model CPU offload, lowers memory usage with slight runtime increase. `accelerate` must be installed.",
     )
+    parser.add_argument(
+        "-so", "--sequential_offload", action="store_true",
+        help=(
+            "Sequential layer CPU offload, significantly lowers memory usage with massive runtime increase."
+            "`accelerate` must be installed. If both model_offload and sequential_offload are set, then use the latter."
+        ),
+    )
     parser.add_argument("-r", "--disable_refiner", action="store_true")
-    parser.add_argument("-m", "--model", type=str, default=None, help="Optionally, load model safetensors")
+    parser.add_argument("-m", "--model", type=str, default=None, help="Optionally, load model safetensors.")
+    parser.add_argument("-b", "--benchmark", action="store_true", help="Show inference time and max memory usage.")
     
     args = parser.parse_args()
     main(args)
