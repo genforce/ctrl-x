@@ -67,6 +67,12 @@ Here, VRAM usage is obtained via `torch.cuda.max_memory_reserved()`, which is th
 
 Have fun playing around with Ctrl-X! :D
 
+## Future plans (a.k.a. TODOs)
+
+- [ ] Add support for arbitrary schedulers besides DDIM, not necessarily with self-recurrence (if not possible).
+- [ ] Add support for DiTs, including SD3 and FLUX.1.
+- [ ] Add support for video generation models, including CogVideoX and Mochi 1.
+
 ## Contact
 
 For any questions, thoughts, discussions, and any other things you want to reach out for, please contact [Jordan Lin](https://kuanhenglin.github.io) (kuanhenglin@ucla.edu).
