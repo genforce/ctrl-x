@@ -69,6 +69,7 @@ Have fun playing around with Ctrl-X! :D
 
 ## Future plans (a.k.a. TODOs)
 
+- [ ] Add dataset for quantitative evaluation.
 - [ ] Add support for arbitrary schedulers besides DDIM, not necessarily with self-recurrence (if not possible).
 - [ ] Add support for DiTs, including SD3 and FLUX.1.
 - [ ] Add support for video generation models, including CogVideoX and Mochi 1.
