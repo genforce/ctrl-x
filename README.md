@@ -67,9 +67,14 @@ Here, VRAM usage is obtained via `torch.cuda.max_memory_reserved()`, which is th
 
 Have fun playing around with Ctrl-X! :D
 
+## Dataset
+
+Instructions for downloading and using our quantitative evaluation dataset in the paper can be found [here](data/README.md). Note that Ctrl-X is *training-free*, so this is *not* a training dataset.
+
 ## Future plans (a.k.a. TODOs)
 
-- [ ] Add dataset for quantitative evaluation.
+- [x] Add dataset for quantitative evaluation.
+- [ ] Add code for quantitative evaluation.
 - [ ] Add support for arbitrary schedulers besides DDIM, not necessarily with self-recurrence (if not possible).
 - [ ] Add support for DiTs, including SD3 and FLUX.1.
 - [ ] Add support for video generation models, including CogVideoX and Mochi 1.
