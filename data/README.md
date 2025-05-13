@@ -1,18 +1,18 @@
-# Ctrl-X quantitative evaluation dataset
+# Ctrl-X quantitative evaluation
 
 We publicly release the dataset for quantitative evaluation as described in our [paper](https://arxiv.org/abs/2406.07540). The dataset consists of 177 1024&times;1024 images divided into 16 types and across 7 categories, including both in-the-wild (web) and generated images.
 
 Sources for all non-generated images can be found [here](https://drive.google.com/file/d/10yQqMz0_o3EvouGM9TC_nDVtLQwz08vn/view?usp=sharing). If you are the author of one of these images and would like it removed, or if we missed crediting your work in the linked PDF, please contact **Jordan Lin** at kuanhenglin@ucla.edu.
 
-## Download
+## Dataset download
 
-To download our dataset, go to [here](https://drive.google.com/file/d/1FzaaLcVK9NBWehdq9eAWnIMtOZkkMz5M/view?usp=sharing), download the file, and move `ctrl-x_data.tar.gz` into the currect folder `data` and inflate with
+To download our dataset, go to [here](https://drive.google.com/file/d/1FzaaLcVK9NBWehdq9eAWnIMtOZkkMz5M/view?usp=sharing), download the file, and move `ctrl-x_data.tar.gz` into the current folder `data` and inflate with
 ```
 tar -xzvf ctrl-x_data.tar.gz
 ```
 You should see the folder `images` appear.
 
-## Overview
+## Dataset overview
 
 The structure of our image dataset is as follows:
 
@@ -89,7 +89,7 @@ Note the initial `f1_data` and `f2_data` entries have anchors (e.g., `&id036`) w
 - `subject`: The subject of the image
 - `context`: The "context" of the image, usually describing the state (e.g., action) and/or location of the subject
 
-For each pair, `target_prompt` is *always* generated with the format `a [type from f2_data] of [subject from f2_data] [context from f1_data]`.
+For each pair, `target_prompt` is *always* generated in the format `a [type from f2_data] of [subject from f2_data] [context from f1_data]`.
 
 ### Prompt-driven conditional generation
 
@@ -128,15 +128,78 @@ For each image, the meaning/purpose of each field is the same as the fields in `
 As mentioned above, the 17 types are used to categorize the images into conditional images and natural images, where conditional images are further categorized into ControlNet-supported conditions and in-the-wild conditions. The `type` field included in each are as follows:
 
 - Conditional images (67 images): `["canny edge map", "metadrive", "3d mesh", "3d humanoid", "depth map", "human pose image", "point cloud", "sketch", "line drawing", "HED edge drawing", "normal map", "segmentation mask"]`
-  - ControlNet-supported conditions: `["canny edge map", "depth map", "human pose image", "line drawing", "HED edge drawing", "normal map", and "segmentation mask"]`
-  - In-the-wild conditions: `["metadrive", "3D mesh", "3D humanoid", "point cloud", and "sketch"]`
+  - ControlNet-supported conditions: `["canny edge map", "depth map", "human pose image", "line drawing", "HED edge drawing", "normal map", "segmentation mask"]`
+  - In-the-wild conditions: `["metadrive", "3D mesh", "3D humanoid", "point cloud", "sketch"]`
 - Natural images (110 images): `["photo", "painting", "cartoon", "birds eye view"]`
 
 For structure and appearance control quantitative evaluation, both conditional and natural images can be structure images, but only natural images can be appearance images.
 
 ## Quantitative evaluation
 
-Code for quantitative evaluation is coming soon, but details of the evaluation can be found in our [paper](https://arxiv.org/abs/2406.07540) in the mean time.
+### Running Ctrl-X on the dataset
+
+Once you have downloaded our quantitative evaluation dataset, you can run Ctrl-X on it. You can run **structure and appearance control** with
+```bash
+python3 -m data.evaluate_ctrlx --evaluation_type structure+appearance
+```
+and you can run **prompt-driven conditional generation** with
+```bash
+python3 -m data.evaluate_ctrlx --evaluation_type prompt-driven
+```
+The results should be stored in the following structure:
+```
+results
+  structure+appearance
+    animals
+      animals_horse-3d-mesh___a_photo_of_a_tawny_horse
+        appearance.jpg     # From the dataset
+        config.yaml        # Config/args used for generation
+        result__90095.jpg  # Result (with default seed 90095)
+        structure.jpg      # From the dataset
+      ...
+    buildings
+      ...
+    ...
+  prompt-driven
+    animals
+      animals_dog-3d-mesh___a_photo_of_a_black_dog_on_a_racing_track
+        appearance.jpg     # Jointly generated based on prompt
+        config.yaml        # Config/args used for generation
+        result__90095.jpg  # Result (with default seed 90095)
+        structure.jpg      # From the dataset
+      ...
+    buildings
+      ...
+    ...
+```
+
+### Quantitative evaluation
+
+After you have ran Ctrl-X on our dataset, you can perform the quantitative evaluations as described in the paper. To do so, first install `lpips` with
+```bash
+pip install lpips
+```
+Then, you can evaluate **structure and appearance control** with
+```bash
+python3 -m data.evaluation.evaluate --evaluation_type structure+appearance
+```
+The results are split into natural images, ControlNet-supported conditions, and new conditions, with the following metrics:
+- Self-sim (lower is better), for structure alignment: Self-similarity (MSE loss) of `dino_vitb8` features between structure and output images
+- DINO-I (higher is better), for appearance alignment: Cosine similarity of the CLS tokens of `dino_vitb8` between appearance and output images, following [DreamBooth](https://dreambooth.github.io/)
+
+Also, you can evaluate **prompt-driven conditional generation** with
+```bash
+python3 -m data.evaluation.evaluate --evaluation_type prompt-driven
+```
+The results are split into ControlNet-supported conditions and new conditions, with the following metrics:
+
+- Self-sim (lower is better), for structure alignment: Self-similarity (MSE loss) of `dino_vitb8` features between structure and output images
+- CLIP score (higher is better), for prompt alignment: Cosine similarity of `clip-vit-base-patch32` embeddings between prompt and output image
+- LPIPS (higher is better), for structure image appearance leakage: `lpips` package from [Perceptual Similarity](https://github.com/richzhang/PerceptualSimilarity), between structure and output images
+
+More details regarding these metrics can be found in our [paper](https://arxiv.org/abs/2406.07540) and `./data/evaluation/score.py`.
+
+Note that the exact evaluation numbers may differ slightly from our paper due to the differing hardware used and is subject to changes in the Hugging Face-hosted models we use. If you get a *significant* deviation from the numbers reported in our paper, feel free to contact us below.
 
 ## Contact
 

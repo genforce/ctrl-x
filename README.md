@@ -19,6 +19,7 @@ Our code is built on top of [`diffusers v0.28.0`](https://github.com/huggingface
 conda env create -f environment.yaml
 conda activate ctrlx
 ```
+You may also want to install and authenticate [`huggingface_hub`](https://huggingface.co/docs/huggingface_hub/en/quick-start) to access the Hugging Face-hosted models which our code uses.
 
 ### Running Ctrl-X
 
@@ -69,12 +70,12 @@ Have fun playing around with Ctrl-X! :D
 
 ## Dataset
 
-Instructions for downloading and using our quantitative evaluation dataset in the paper can be found [here](data/README.md). Note that Ctrl-X is *training-free*, so this is *not* a training dataset.
+Instructions for downloading and using our quantitative evaluation dataset, along with how to run Ctrl-X on the dataset and evaluate the results with the metrics in the paper, can be found [here](data/README.md). Note that Ctrl-X is *training-free*, so this is *not* a training dataset.
 
 ## Future plans (a.k.a. TODOs)
 
 - [x] Add dataset for quantitative evaluation.
-- [ ] Add code for quantitative evaluation.
+- [x] Add code for quantitative evaluation.
 - [ ] Add support for arbitrary schedulers besides DDIM, not necessarily with self-recurrence (if not possible).
 - [ ] Add support for DiTs, including SD3 and FLUX.1.
 - [ ] Add support for video generation models, including CogVideoX and Mochi 1.
