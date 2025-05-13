@@ -72,14 +72,6 @@ Have fun playing around with Ctrl-X! :D
 
 Instructions for downloading and using our quantitative evaluation dataset, along with how to run Ctrl-X on the dataset and evaluate the results with the metrics in the paper, can be found [here](data/README.md). Note that Ctrl-X is *training-free*, so this is *not* a training dataset.
 
-## Future plans (a.k.a. TODOs)
-
-- [x] Add dataset for quantitative evaluation.
-- [x] Add code for quantitative evaluation.
-- [ ] Add support for arbitrary schedulers besides DDIM, not necessarily with self-recurrence (if not possible).
-- [ ] Add support for DiTs, including SD3 and FLUX.1.
-- [ ] Add support for video generation models, including CogVideoX and Mochi 1.
-
 ## Contact
 
 For any questions, thoughts, discussions, and any other things you want to reach out for, please contact [Jordan Lin](https://kuanhenglin.github.io) (kuanhenglin@ucla.edu).
@@ -92,7 +84,10 @@ If you use our code in your research, please cite the following work.
 @inproceedings{lin2024ctrlx,
     author = {Lin, {Kuan Heng} and Mo, Sicheng and Klingher, Ben and Mu, Fangzhou and Zhou, Bolei},
     booktitle = {Advances in Neural Information Processing Systems},
+    pages = {128911--128939},
     title = {Ctrl-X: Controlling Structure and Appearance for Text-To-Image Generation Without Guidance},
+    volume = {37},
     year = {2024}
 }
 ```
+You can find our paper in the NeurIPS 2024 Proceedings with the full BibTex citation [here](https://papers.nips.cc/paper_files/paper/2024/hash/e8e30fda5ab87ea93360a36288ac0145-Abstract-Conference.html).
