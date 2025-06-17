@@ -68,7 +68,7 @@ Here, VRAM usage is obtained via `torch.cuda.max_memory_reserved()`, which is th
 
 Have fun playing around with Ctrl-X! :D
 
-## Dataset
+## Dataset and quantitative evaluation
 
 Instructions for downloading and using our quantitative evaluation dataset, along with how to run Ctrl-X on the dataset and evaluate the results with the metrics in the paper, can be found [here](data/README.md). Note that Ctrl-X is *training-free*, so this is *not* a training dataset.
 
