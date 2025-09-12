@@ -74,7 +74,7 @@ Instructions for downloading and using our quantitative evaluation dataset, alon
 
 ## Contact
 
-For any questions, thoughts, discussions, and any other things you want to reach out for, please contact [Jordan Lin](https://kuanhenglin.github.io) (kuanhenglin@ucla.edu).
+For any questions, thoughts, discussions, and any other things you want to reach out for, please contact [Jordan Lin](https://kuanhenglin.github.io) (`jordan at cs dot columbia dot edu`).
 
 ## Reference
 
